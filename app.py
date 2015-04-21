@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+# coding: utf8
+
+from flask import Flask
+from flask import request
+from flask import abort
+
+import logbook
+import redis
+
+app = Flask(__name__)
+
+
+@app.route("/")
+def record():
+    word = request.args.get("word", "")
+    if not word:
+        abort(400)
+
+    rdb.incr(word)
+    return
+
+if __name__ == '__main__':
+    from os.path import abspath, exists, dirname, join
+
+    server_log_file = join(dirname(abspath(__file__)), "log_record")
+    if not exists(server_log_file):
+        open(server_log_file, "w").close()
+
+    local_log = logbook.FileHandler(server_log_file)
+    local_log.format_string = (
+        u'[{record.time:%H:%M:%S}] '
+        u'lineno:{record.lineno} '
+        u'{record.level_name}:{record.message}')
+    local_log.push_application()
+
+    rdb = redis.StrictRedis(db=15)
+
+    app.run(host='127.0.0.1')
