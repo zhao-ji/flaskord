@@ -13,9 +13,9 @@ import redis
 app = Flask(__name__)
 
 
-@app.route("/")
+@app.route("/", methods=['POST'])
 def record():
-    word = request.args.get("word", "")
+    word = request.form.get("word", "")
     if not word:
         abort(400)
     logbook.info(word)
