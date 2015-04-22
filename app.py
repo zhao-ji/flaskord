@@ -44,4 +44,4 @@ if __name__ == '__main__':
     rdb_15 = redis.StrictRedis(db=15)
     rdb_14 = redis.StrictRedis(db=14)
 
-    app.run(host='127.0.0.1')
+    app.run(host='127.0.0.1', port=4444)
