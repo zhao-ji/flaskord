@@ -8,7 +8,7 @@ from requests import get, post
 KEY = '1842459857'
 KEYFROM = 'ScriptsOfTranslate'
 URL = 'http://fanyi.youdao.com/openapi.do'
-RECORD_URL = 'https://chashuibiao.org/word'
+RECORD_URL = 'http://chashuibiao.org/word/'
 
 
 def translate(text):
@@ -47,7 +47,7 @@ def translate(text):
 
 def record(text):
     payload = {"word": text}
-    post(RECORD_URL, data=payload)
+    post(RECORD_URL, data=payload, auth=('word', 'password'))
 
 
 if __name__ == '__main__':
