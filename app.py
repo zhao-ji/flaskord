@@ -29,21 +29,23 @@ def record():
     return ''
 
 
-@app.route("/", method=['GET'])
+@app.route("/", methods=['GET'])
 def select():
     day_time = request.args.get("day", "")
-    assert day_time.isdigit is True
+    assert day_time.isdigit() is True
     assert len(day_time) == 6
 
     day_words = rdb_14.keys("{}??????".format(day_time))
+    day_words.sort(key=int, reverse=True)
     logbook.info(day_words)
 
     word_list = []
     for word_day in day_words:
         word = {}
         word["time"] = word_day
-        word["word"] = rdb_14.get("word_day")
-        word["freq"] = rdb_15.get("word_day")
+        word["word"] = rdb_14.get(word_day)
+        word["freq"] = rdb_15.get(word["word"])
+        logbook.info(word)
         word_list.append(word)
 
     return render_template(
