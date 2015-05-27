@@ -3,9 +3,10 @@
 
 from time import strftime
 
-from flask import Flask
-from flask import request
 from flask import abort
+from flask import Flask
+from flask import render_template
+from flask import request
 
 import logbook
 import redis
@@ -26,6 +27,30 @@ def record():
     rdb_14.set(time_str, word)
 
     return ''
+
+
+@app.route("/", method=['GET'])
+def select():
+    day_time = request.args.get("day", "")
+    assert day_time.isdigit is True
+    assert len(day_time) == 6
+
+    day_words = rdb_14.keys("{}??????".format(day_time))
+    logbook.info(day_words)
+
+    word_list = []
+    for word_day in day_words:
+        word = {}
+        word["time"] = word_day
+        word["word"] = rdb_14.get("word_day")
+        word["freq"] = rdb_15.get("word_day")
+        word_list.append(word)
+
+    return render_template(
+        "summary.html",
+        word_list=word_list,
+    )
+
 
 if __name__ == '__main__':
     from os.path import abspath, exists, dirname, join

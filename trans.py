@@ -29,8 +29,8 @@ def translate(text):
 
     # print '结果：'
 
-    # translation = ', '.join(trans_ret.get('translation', []))
-    # print ' ' * 4 + '翻译：' + translation.encode('utf8')
+    translation = ', '.join(trans_ret.get('translation', []))
+    print '翻译：' + translation.encode('utf8')
 
     if 'basic' in trans_ret:
         basic = ('\n\t').join(trans_ret['basic']['explains'])
