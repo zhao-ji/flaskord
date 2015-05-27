@@ -27,22 +27,22 @@ def translate(text):
         return
     trans_ret = ret.json()
 
-    print '结果：'
+    # print '结果：'
 
-    translation = ', '.join(trans_ret['translation'])
-    print ' ' * 4 + '翻译：' + translation.encode('utf8')
+    # translation = ', '.join(trans_ret.get('translation', []))
+    # print ' ' * 4 + '翻译：' + translation.encode('utf8')
 
     if 'basic' in trans_ret:
-        basic = ('\n'+' '*9).join(trans_ret['basic']['explains'])
-        print ' ' * 4 + '基本查询：' + basic.encode('utf8')
+        basic = ('\n\t').join(trans_ret['basic']['explains'])
+        print '基本查询：' + basic.encode('utf8')
 
     if 'web' in trans_ret:
-        web = ('\n'+' '*9).join(
+        web = ('\n\t').join(
             '{}: {}'.format(
                 item['key'].encode('utf8'),
                 ', '.join(i.encode('utf-8') for i in item['value']))
             for item in trans_ret['web'])
-        print ' ' * 4 + '网络查询：' + web
+        print '网络查询：' + web
 
 
 def record(text):
@@ -62,6 +62,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     word = ' '.join(args.text)
-    print word
+    # print word
     translate(word)
     record(word)
