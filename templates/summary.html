@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <title>单词日查询统计</title>
+    </head>
+    <body>
+        {% for word_dict in word_list %}
+            <div>
+                <b>word_dict["word"]<b>
+                <b>word_dict["time"]<b>
+                <b>word_dict["freq"]<b>
+            </div>
+        {% end for %}
+    </body>
+</html>
