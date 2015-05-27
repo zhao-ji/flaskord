@@ -7,9 +7,9 @@
     <body>
         {% for word_dict in word_list %}
             <div>
-                <b>{{ word_dict["word"] }}<b>
-                <b>{{ word_dict["time"] }}<b>
-                <b>{{ word_dict["freq"] }}<b>
+                <b>单词：{{ word_dict["word"] }}<b>
+                <b>查询时间：{{ word_dict["time"] }}<b>
+                <b>查询次数：{{ word_dict["freq"] }}<b>
             </div>
         {% endfor %}
     </body>
