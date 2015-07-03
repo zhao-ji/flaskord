@@ -3,34 +3,59 @@
 
 from argparse import ArgumentParser
 
+from gevent import joinall, spawn
 from requests import get, post
 
-KEY = '1842459857'
-KEYFROM = 'ScriptsOfTranslate'
-URL = 'http://fanyi.youdao.com/openapi.do'
+YOUDAO_KEY = ''
+YOUDAO_KEYFROM = 'ScriptsOfTranslate'
+YOUDAO_URL = 'http://fanyi.youdao.com/openapi.do'
+
+GOOGLE_API_KEY = ""
+GOOGLE_URL = "https://www.googleapis.com/language/translate/v2"
+
 RECORD_URL = 'http://chashuibiao.org/word/'
 
 
-def translate(text):
+def google(text):
     params = {}
-    params['keyfrom'] = KEYFROM
-    params['key'] = KEY
+    params["key"] = GOOGLE_API_KEY
+    params["q"] = text
+    if len(text) == len(text.decode("utf8")):
+        params["from"] = "en"
+        params["target"] = "zh-cn"
+    else:
+        params["from"] = "zh-CN"
+        params["target"] = "en"
+
+    try:
+        ret = get(url=GOOGLE_URL, params=params, timeout=3)
+    except BaseException, e:
+        print e
+        return
+    trans_ret = ret.json()
+    print "谷歌翻译：", trans_ret["data"]["translations"][0]["translatedText"]
+    print ""
+
+
+def youdao(text):
+    params = {}
+    params['keyfrom'] = YOUDAO_KEYFROM
+    params['key'] = YOUDAO_KEY
     params['type'] = 'data'
     params['doctype'] = 'json'
     params['version'] = '1.1'
     params['q'] = text
 
     try:
-        ret = get(url=URL, params=params, timeout=5)
+        ret = get(url=YOUDAO_URL, params=params, timeout=3)
     except BaseException, e:
         print e
         return
     trans_ret = ret.json()
 
-    # print '结果：'
-
     translation = ', '.join(trans_ret.get('translation', []))
-    print '翻译：' + translation.encode('utf8')
+    print '有道翻译：' + translation.encode('utf8')
+    print ""
 
     if 'basic' in trans_ret:
         basic = ('\n\t').join(trans_ret['basic']['explains'])
@@ -61,7 +86,7 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    word = ' '.join(args.text)
-    # print word
-    translate(word)
-    record(word)
+    text = " ".join(args.text)
+    joinall([
+        spawn(google, text), spawn(youdao, text), spawn(record, text),
+    ])
