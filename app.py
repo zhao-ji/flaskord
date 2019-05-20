@@ -12,6 +12,8 @@ import logbook
 import redis
 
 app = Flask(__name__)
+rdb_14 = redis.StrictRedis(db=14)
+rdb_15 = redis.StrictRedis(db=15)
 
 
 @app.route("/", methods=['POST'])
@@ -68,7 +70,4 @@ if __name__ == '__main__':
         u'{record.level_name}:{record.message}')
     local_log.push_application()
 
-    rdb_15 = redis.StrictRedis(db=15)
-    rdb_14 = redis.StrictRedis(db=14)
-
-    app.run(host='127.0.0.1', port=4444)
+    app.run(host='127.0.0.1', port=8003)
