@@ -18,7 +18,8 @@ rdb_15 = redis.StrictRedis(db=15)
 
 @app.route("/", methods=['POST'])
 def record():
-    word = request.form.get("word", "")
+    data = request.get_json()
+    word = data.get("word", None)
     if not word:
         abort(400)
     logbook.info(word)
