@@ -60,3 +60,6 @@ target/
 
 # Local settings
 local_settings.py
+
+# NginX conf
+nginx.conf
