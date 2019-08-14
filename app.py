@@ -16,13 +16,33 @@ rdb_14 = redis.StrictRedis(db=14)
 rdb_15 = redis.StrictRedis(db=15)
 
 
+def apply_logging():
+    from os.path import abspath, exists, dirname, join
+
+    server_log_file = join(dirname(abspath(__file__)), "record.log")
+    if not exists(server_log_file):
+        open(server_log_file, "w").close()
+
+    logbook.set_datetime_format("local")
+    local_log = logbook.FileHandler(server_log_file)
+    local_log.format_string = (
+        u'[{record.time:%Y-%m-%d %H:%M:%S}] '
+        u'lineno:{record.lineno} '
+        u'{record.level_name}:{record.message}')
+    local_log.push_application()
+
+
+apply_logging()
+
+
 @app.route("/", methods=['POST'])
 def record():
     data = request.get_json()
     word = data.get("word", None)
     if not word:
         abort(400)
-    logbook.info(word)
+    ip = request.headers.get("X-Real-IP", "")
+    logbook.info(" {} {}".format(ip, word))
 
     rdb_15.incr(word)
 
@@ -58,17 +78,4 @@ def select():
 
 
 if __name__ == '__main__':
-    from os.path import abspath, exists, dirname, join
-
-    server_log_file = join(dirname(abspath(__file__)), "record.log")
-    if not exists(server_log_file):
-        open(server_log_file, "w").close()
-
-    local_log = logbook.FileHandler(server_log_file)
-    local_log.format_string = (
-        u'[{record.time:%H:%M:%S}] '
-        u'lineno:{record.lineno} '
-        u'{record.level_name}:{record.message}')
-    local_log.push_application()
-
     app.run(host='127.0.0.1', port=8003)
