@@ -1,19 +1,26 @@
 #!/usr/bin/env python
-# coding: utf8
+# coding: utf-8
 
 from time import strftime
 
 from flask import abort
 from flask import Flask
+from flask import jsonify
 from flask import render_template
 from flask import request
 
+import boto3
 import logbook
 import redis
+from requests import get
+
+from local_settings import URBAN_DICTIONARY_API_KEY, URBAN_DICTIONARY_URL
 
 app = Flask(__name__)
 rdb_14 = redis.StrictRedis(db=14)
 rdb_15 = redis.StrictRedis(db=15)
+translate = boto3.client(service_name='translate',
+                         region_name='us-west-2', use_ssl=True)
 
 
 def apply_logging():
@@ -75,6 +82,39 @@ def select():
         "summary.html",
         word_list=word_list,
     )
+
+
+@app.route("/amazon", methods=['GET'])
+def amazon():
+    ret_data = {}
+
+    text = request.args.get("text", "")
+    if len(text) == len(text.encode("utf-8")):
+        source = "en"
+        to = "zh"
+    else:
+        source = "zh"
+        to = "en"
+
+    result = translate.translate_text(
+        Text=text, SourceLanguageCode=source, TargetLanguageCode=to)
+    ret_data["result"] = result.get('TranslatedText')
+
+    return jsonify(ret_data)
+
+
+@app.route("/urban_dictionary", methods=['GET'])
+def urban_dictionary():
+    text = request.args.get("text", "")
+    ret_data = {}
+
+    headers = {"X-RapidAPI-Key": URBAN_DICTIONARY_API_KEY}
+    params = {"term": text}
+    ret = get(URBAN_DICTIONARY_URL, headers=headers, params=params)
+    if ret.ok:
+        ret_data["result"] = ret.json().get("list", None)
+
+    return jsonify(ret_data)
 
 
 if __name__ == '__main__':
