@@ -49,7 +49,7 @@ def record():
     if not word:
         abort(400)
     ip = request.headers.get("X-Real-IP", "")
-    logbook.info(" {} {}".format(ip, word))
+    logbook.info(" {} {}".format(ip, word.encode("utf-8")))
 
     rdb_15.incr(word)
 
