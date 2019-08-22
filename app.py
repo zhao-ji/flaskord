@@ -42,7 +42,7 @@ def apply_logging():
 apply_logging()
 
 
-@app.route("/", methods=['POST'])
+@app.route("/record", methods=['POST'])
 def record():
     data = request.get_json()
     word = data.get("word", None)
@@ -50,13 +50,7 @@ def record():
         abort(400)
     ip = request.headers.get("X-Real-IP", "")
     logbook.info(" {} {}".format(ip, word.encode("utf-8")))
-
-    rdb_15.incr(word)
-
-    time_str = strftime("%y%m%d%H%M%S")
-    rdb_14.set(time_str, word)
-
-    return ''
+    return ""
 
 
 @app.route("/", methods=['GET'])
@@ -89,15 +83,11 @@ def amazon():
     ret_data = {}
 
     text = request.args.get("text", "")
-    if len(text) == len(text.encode("utf-8")):
-        source = "en"
-        to = "zh"
-    else:
-        source = "zh"
-        to = "en"
+    source = request.args.get("source", "")
+    target = request.args.get("target", "")
 
     result = translate.translate_text(
-        Text=text, SourceLanguageCode=source, TargetLanguageCode=to)
+        Text=text, SourceLanguageCode=source, TargetLanguageCode=target)
     ret_data["result"] = result.get('TranslatedText')
 
     return jsonify(ret_data)
