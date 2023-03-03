@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from time import strftime
-
 from flask import abort
 from flask import Flask
 from flask import jsonify
@@ -12,9 +10,10 @@ from flask import request
 import boto3
 import logbook
 import redis
-from requests import get
+from requests import get, post
 
 from local_settings import URBAN_DICTIONARY_API_KEY, URBAN_DICTIONARY_URL
+from local_settings import CHATGPT_URL, CHATGPT_API_KEY
 
 app = Flask(__name__)
 rdb_14 = redis.StrictRedis(db=14)
@@ -103,6 +102,38 @@ def urban_dictionary():
     ret = get(URBAN_DICTIONARY_URL, headers=headers, params=params)
     if ret.ok:
         ret_data["result"] = ret.json().get("list", None)
+
+    return jsonify(ret_data)
+
+
+@app.route("/chatgpt", methods=['GET'])
+def chantgpt():
+    text = request.args.get("text", "")
+    source = request.args.get("source", "")
+    target = request.args.get("target", "")
+
+    headers = {"Authorization": "Bearer {}".format(CHATGPT_API_KEY)}
+    if source.lower() == "En" and target.lower() == "Zh":
+        prompt = "Translate sentence into Mandarin."
+    else:
+        prompt = "Translate sentence into English."
+
+    body = {
+        "model": "gpt-3.5-turbo",
+        "messages": [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": text},
+        ],
+        "temperature": 0,
+    }
+
+    ret = post(CHATGPT_URL, headers=headers, body=body)
+
+    ret_data = {}
+    if ret.ok:
+        choices = ret.json().get("choices", [])
+        if len(choices) > 0:
+            ret_data["result"] = choices[0]["message"]["content"]
 
     return jsonify(ret_data)
 
