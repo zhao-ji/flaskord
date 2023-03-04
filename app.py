@@ -113,12 +113,12 @@ def chatgpt():
     target = request.args.get("target", "")
 
     headers = {"Authorization": "Bearer {}".format(CHATGPT_API_KEY)}
-    if source.lower() == "En" and target.lower() == "Zh":
-        prompt = "Translate sentence into Mandarin."
+    if source.lower() == "en" and target.lower() == "zh":
+        prompt = "Translate sentence or word into Mandarin."
     else:
-        prompt = "Translate sentence into English."
+        prompt = "Translate sentence or word into English."
 
-    body = {
+    json = {
         "model": "gpt-3.5-turbo",
         "messages": [
             {"role": "system", "content": prompt},
@@ -128,7 +128,7 @@ def chatgpt():
         "user": "flaskord",
     }
 
-    ret = post(CHATGPT_URL, headers=headers, body=body)
+    ret = post(CHATGPT_URL, headers=headers, json=json)
 
     ret_data = {}
     if ret.ok:
