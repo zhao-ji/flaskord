@@ -107,7 +107,7 @@ def urban_dictionary():
 
 
 @app.route("/chatgpt", methods=['GET'])
-def chantgpt():
+def chatgpt():
     text = request.args.get("text", "")
     source = request.args.get("source", "")
     target = request.args.get("target", "")
@@ -125,6 +125,7 @@ def chantgpt():
             {"role": "user", "content": text},
         ],
         "temperature": 0,
+        "user": "flaskord",
     }
 
     ret = post(CHATGPT_URL, headers=headers, body=body)
