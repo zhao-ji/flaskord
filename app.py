@@ -14,6 +14,7 @@ from requests import get, post
 
 from local_settings import URBAN_DICTIONARY_API_KEY, URBAN_DICTIONARY_URL
 from local_settings import CHATGPT_URL, CHATGPT_API_KEY
+from local_settings import LLAMA_URL, LLAMA_API_KEY
 
 app = Flask(__name__)
 rdb_14 = redis.StrictRedis(db=14)
@@ -119,7 +120,7 @@ def chatgpt():
         prompt = "Translate sentence or word into English."
 
     json = {
-        "model": "gpt-3.5-turbo",
+        "model": "gpt-4",
         "messages": [
             {"role": "system", "content": prompt},
             {"role": "user", "content": text},
@@ -135,6 +136,36 @@ def chatgpt():
         choices = ret.json().get("choices", [])
         if len(choices) > 0:
             ret_data["result"] = choices[0]["message"]["content"]
+
+    return jsonify(ret_data)
+
+@app.route("/llama", methods=['GET'])
+def llama():
+    text = request.args.get("text", "")
+    source = request.args.get("source", "")
+    target = request.args.get("target", "")
+
+    headers = {"Authorization": "Bearer {}".format(LLAMA_API_KEY)}
+    if source.lower() == "en" and target.lower() == "zh":
+        prompt = "Translate sentence or word into Mandarin, just give me the result."
+    else:
+        prompt = "Translate sentence or word into English, just give me the result."
+
+    json = {
+        "messages": [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": text},
+        ],
+        "temperature": 0,
+        "user": "flaskord",
+    }
+
+    ret = post(LLAMA_URL, headers=headers, json=json)
+
+    ret_data = {}
+    if ret.ok:
+        result = ret.json()
+        ret_data["result"] = result["result"]["response"]
 
     return jsonify(ret_data)
 
